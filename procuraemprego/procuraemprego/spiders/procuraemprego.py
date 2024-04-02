@@ -9,6 +9,7 @@ class ProcuraempregoSpider(scrapy.Spider):
     start_urls = ["https://empregacampinas.com.br/"]
 
     def parse(self, response):
+
         Path ("files/procuraemprego.csv").write_bytes(response.body)
 
         pass
