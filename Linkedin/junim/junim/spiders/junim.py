@@ -6,16 +6,19 @@ class MeuSpider(scrapy.Spider):
     start_urls = ['https://www.linkedin.com/jobs/search?keywords=Desenvolvedor&location=Brasil&geoId=106057199&f_TPR=r86400&position=1&pageNum=0']
 
     def parse(self, response):
-        # Usando XPath para extrair os títulos e links
-        titulo_elementos = response.xpath('//h3[contains(@class, "base-search-card__title")]/text()').getall()
-        link_elementos = response.xpath('//a[contains(@class, "base-card__full-link")]/@href').getall()
+        # Usando CSS para extrair os títulos e links
+        titulo_elementos = response.css('.base-card__full-link .sr-only::text').getall()
+        link_elementos = response.css('.base-card__full-link::attr(href)').getall()
 
-        # Verifica se o número de títulos é igual ao número de links
+        # Remover espaços extras e caracteres de nova linha dos títulos
+        titulo_elementos = [titulo.strip() for titulo in titulo_elementos]
+
+        # Verificar se o número de títulos e links é o mesmo
         if len(titulo_elementos) != len(link_elementos):
             self.logger.error("O número de títulos e links não é o mesmo")
             return
 
-        # Criar DataFrame com os dados
+        # Criar DataFrame com os dados disponíveis
         dados = {'Título': titulo_elementos, 'Link': link_elementos}
         df = pd.DataFrame(dados)
 
